@@ -8,7 +8,7 @@ import configparser
 class MySqlManager:
     def __init__(self):  # 构造方法
         cf = configparser.ConfigParser()
-        cf.read("config/myqlconf.ini")
+        cf.read("config/mysqlconf.ini")
 
         self.DATABASE = cf.get("app_info", "DATABASE")
         self.USER = cf.get("app_info", "USER")

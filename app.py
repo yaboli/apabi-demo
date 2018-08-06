@@ -272,7 +272,7 @@ def get_ids_labels():
     # 2.MySQL检索
     manager = MySqlManager.MySqlManager()
     ids = manager.query_book_id(mysql_input)
-    return jsonify(labels=dic['labels'], ids=ids)
+    return jsonify(label=dic['labels'], id=ids)
 
 
 @app.errorhandler(500)
