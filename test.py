@@ -1,6 +1,7 @@
 import jieba
 import re
 import xlrd
+from pycnnum import num2cn, cn2num
 
 all_labels = set()
 
@@ -94,7 +95,11 @@ def get_synonyms(word_out, line):
         if x in replace_near_years:
             if '近' in x:
                 t = re.sub('\D', '', x)
-                min_year = 2018 - int(t)
+                if t:
+                    min_year = 2018 - int(t)
+                else:
+                    arabic_num = cn2num(x[1])
+                    min_year = 2018 - arabic_num
                 min_year = '>=' + str(min_year) + '年'
                 ind_x = word_out.index(x)
                 word_out[ind_x] = min_year  # 将‘近x年’转变为‘>=20xx’
@@ -172,12 +177,18 @@ def load_label():
 def near_years(years):
     near_year_list = []
     for year in years:
-        x = str(2018 - int(year))
-        if x == '0':
+        x0 = 2018 - int(year)
+        x = str(x0)
+        if x == '0' or x0 == 0:
             y = '今年'
+            y0 = y
         else:
-            y = '近' + x
+            y = '近' + x + '年'
+            cn_digital = num2cn(x0, numbering_type='low', alt_two=True, use_zeros=True, big=False, traditional=False)
+            y0 = '近' + cn_digital + '年'
         near_year_list.append(y)
+        near_year_list.append(y0)
+    near_year_list.append('近两年')
     return near_year_list
 
 
@@ -196,7 +207,7 @@ def build_sql_input(dic):
 
 def main():
     load_dictionary()
-    sentence = '我要找近3年关于互联网的书'
+    sentence = '我要找近两年关于互联网的书'
     dic = get_dic(sentence)
     labels, str_year = build_sql_input(dic)
     mysql_input = {'label': labels, 'year': str_year}
